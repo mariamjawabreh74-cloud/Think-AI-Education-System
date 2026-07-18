@@ -38,7 +38,15 @@ const TEACHERS_FILE = path.join(__dirname, 'teachers.json');
     TEACHERS_FILE
 ].forEach(file => {
     if (!fs.existsSync(file)) {
-        fs.writeFileSync(file, JSON.stringify({}, null, 4));
+let defaultData;
+
+if (file === QUESTIONS_FILE || file === ARCHIVE_META_FILE) {
+    defaultData = [];
+} else {
+    defaultData = {};
+}
+
+fs.writeFileSync(file, JSON.stringify(defaultData, null, 4));
     }
 });
 
