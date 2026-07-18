@@ -12,11 +12,18 @@ __pycache__/
 .env
 
 # Uploaded files
-AI/uploads/
+uploads/
+
+# Runtime data
+students.json
+teachers.json
+admins.json
+questions.json
+archive.json
 
 # OS files
 .DS_Store
 desktop.ini
 
-# Model temporary files
+# Logs
 *.log

@@ -1,22 +1,0 @@
-{
-    "items": [
-        {
-            "id": "arc_1784062255992_mhrmu",
-            "schoolId": "sch_1784035307172_rmpyb",
-            "type": "teachers",
-            "originalName": "ÙØ¹ÙÙØ§Øª.xlsx",
-            "storedName": "arc_1784062255992_mhrmu.xlsx",
-            "rowCount": 2,
-            "uploadedAt": "2026-07-14T20:50:55.998Z"
-        },
-        {
-            "id": "arc_1784062270251_i9uh2",
-            "schoolId": "sch_1784035307172_rmpyb",
-            "type": "students",
-            "originalName": "Ø·ÙØ§Ø¨.xlsx1.xlsx",
-            "storedName": "arc_1784062270251_i9uh2.xlsx",
-            "rowCount": 2,
-            "uploadedAt": "2026-07-14T20:51:10.255Z"
-        }
-    ]
-}
