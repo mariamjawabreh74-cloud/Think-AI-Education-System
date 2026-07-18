@@ -407,7 +407,7 @@ app.post('/api/questions/send', upload.single('questionImage'), async(req, res) 
 
     // إرسال السؤال إلى نموذج الذكاء الاصطناعي
     const aiResponse = await axios.post(
-        "http://127.0.0.1:5000/predict",
+        "https://think-ai-education-system-1.onrender.com/predict",
         {
             text: text
         }
