@@ -26,6 +26,22 @@ const QUESTIONS_FILE = path.join(__dirname, 'questions.json');
 const ADMINS_FILE = path.join(__dirname, 'admins.json');
 const ARCHIVE_META_FILE = path.join(__dirname, 'archive.json');
 const ARCHIVE_DIR = path.join(__dirname, 'uploads', 'archive');
+
+const STUDENTS_FILE = path.join(__dirname, 'students.json');
+const TEACHERS_FILE = path.join(__dirname, 'teachers.json');
+
+[
+    QUESTIONS_FILE,
+    ADMINS_FILE,
+    ARCHIVE_META_FILE,
+    STUDENTS_FILE,
+    TEACHERS_FILE
+].forEach(file => {
+    if (!fs.existsSync(file)) {
+        fs.writeFileSync(file, JSON.stringify({}, null, 4));
+    }
+});
+
 if (!fs.existsSync(ARCHIVE_DIR)) {
     fs.mkdirSync(ARCHIVE_DIR, { recursive: true });
 }
