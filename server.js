@@ -429,13 +429,38 @@ app.post('/api/questions/send', upload.single('questionImage'), async(req, res) 
     }
 
 
-    // إرسال السؤال إلى نموذج الذكاء الاصطناعي
-    const aiResponse = await axios.post(
+    let aiResponse;
+
+try {
+    aiResponse = await axios.post(
         "https://think-ai-education-system-1.onrender.com/predict",
         {
             text: text
+        },
+        {
+            timeout: 120000
         }
     );
+
+    console.log("AI RESPONSE:", aiResponse.data);
+
+} catch (error) {
+
+    console.log("AI ERROR:");
+
+    if (error.response) {
+        console.log("Status:", error.response.status);
+        console.log("Data:", error.response.data);
+    } else {
+        console.log(error.message);
+    }
+
+    return res.status(500).json({
+        success: false,
+        message: "حدث خطأ في خدمة الذكاء الاصطناعي."
+    });
+}
+
 
     console.log("AI RESPONSE:", aiResponse.data);
 
