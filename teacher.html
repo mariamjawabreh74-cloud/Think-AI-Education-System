@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فهمك كفايتنا - بوابة المعلمين </title>
+    <link rel="stylesheet" href="teacher.css">
+    <style>
+        .teacher-layout { display: flex; gap: 25px; max-width: 1100px; width: 95%; margin: 20px auto; text-align: right; align-items: flex-start; }
+        .sidebar { width: 30%; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .main-content { width: 70%; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); display: none; }
+        .class-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: #f1f5f9; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-align: right; font-size: 1.05rem; color: #2c3e50; }
+        .class-btn:hover, .class-btn.active { background: #2980b9; color: white; }
+        
+        .pending-section { border-bottom: 2px solid #f1f5f9; padding-bottom: 25px; margin-bottom: 25px; }
+        .pending-card { background: #fffcf4; border-right: 5px solid #f39c12; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.01); }
+        .ans-area { width: 100%; height: 70px; padding: 10px; border: 2px solid #cbd5e1; border-radius: 8px; resize: none; margin-top: 10px; box-sizing: border-box; outline: none; }
+        
+        .archive-section { text-align: right; }
+        .qa-card { background: #f8fafc; border-right: 5px solid #27ae60; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .q-text { font-weight: bold; color: #2c3e50; }
+        .a-text { color: #27ae60; background: #ebf7ee; padding: 8px; border-radius: 6px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+
+<div id="google_translate_element" style="display:none;"></div>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'ar', 
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: true
+        }, 'google_translate_element');
+    }
+</script>
+<script type="text/javascript" src="//://google.com"></script>
+
+    <div style="text-align: center; width: 100%; margin-top: 20px;">
+        <h2 id="teacherWelcome" style="color: #1a4f63; margin-bottom: 5px;">أهلاً بك حضرة المعلم/ة</h2>
+        <p style="color: #7f8c8d; margin-top: 0; font-weight: bold;">صندوق الوارد والأرشيف الخاص بالغرف الصفية الموكلة إليك</p>
+    </div>
+
+    <div class="teacher-layout">
+        <div class="sidebar">
+            <h3 style="color: #1a4f63; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0;"> صفوفك الدراسية</h3>
+            <div id="classesList">
+            </div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <h2 id="currentClassTitle" style="color: #2980b9; margin-top: 0;"></h2>
+            
+            <div class="pending-section">
+                <h3> أسئلة جديدة بحاجة لإجابة </h3>
+                <div id="pendingQuestionsList"></div>
+            </div>
+
+            <div class="archive-section">
+                <h3> أرشيف الأسئلة التي قمت بالإجابة عليها</h3>
+                <div id="approvedQuestionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tName = localStorage.getItem('currentUserName');
+        const tClasses = localStorage.getItem('currentUserClasses');
+        const listDiv = document.getElementById('classesList');
+        const schoolId = localStorage.getItem('currentUserSchoolId');
+        
+        if(!tName || !tClasses) {
+            alert("يرجى تسجيل الدخول أولاً.");
+            window.location.href = "login.html";
+        }
+
+        document.getElementById('teacherWelcome').innerText = `أهلاً بك يا ${tName}`;
+
+        let selSub = '', selGrade = '';
+        const rooms = String(tClasses).split(',');
+        
+        rooms.forEach(r => {
+            if(r.includes('-')) {
+                const parts = r.split('-');
+                const sub = parts[0].trim(); 
+                const grd = parts[1].trim();
+                
+                const btn = document.createElement('button'); 
+                btn.className = 'class-btn';
+                btn.innerText = ` مادة ${sub} - الصف ${grd}`;
+                btn.onclick = () => {
+                    selSub = sub; 
+                    selGrade = grd;
+                    document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('currentClassTitle').innerText = `غرفة مادة ${sub} (الصف ${grd})`;
+                    document.getElementById('mainContent').style.display = 'block';
+                    
+                    loadPending();
+                    loadArchive();
+                };
+                listDiv.appendChild(btn);
+            }
+        });
+
+        if (listDiv.children.length === 0) listDiv.innerHTML = '<p style="color:red;">⚠️ لا توجد صفوف مسجلة، تأكد من ملف الإكسل.</p>';
+
+        function loadPending() {
+            const pList = document.getElementById('pendingQuestionsList');
+            pList.innerHTML = 'جاري التحميل...';
+            fetch(`/api/questions/pending?grade=${selGrade}&subject=${selSub}&schoolId=${schoolId}`)
+            .then(res => res.json()).then(questions => {
+                if(questions.length === 0) { pList.innerHTML = '<p style="color:#27ae60; font-weight:bold;"> لا توجد أسئلة معلقة جديدة في هذا الصف.</p>'; return; }
+                pList.innerHTML = '';
+                questions.forEach(q => {
+                    let img = q.imageUrl ? `<br><img src="${q.imageUrl}" style="max-width:200px;margin-top:10px;border-radius:6px;">` : '';
+                    pList.innerHTML += `
+                        <div class="pending-card">
+                            <div class="q-text">❓ السؤال: ${q.text} ${img}</div>
+                            <textarea id="ans-${q.id}" class="ans-area" placeholder="اكتب الإجابة التعليمية هنا ونشرها فوراً للطلاب..."></textarea>
+                            <br>
+                            <button onclick="sendAnswer('${q.id}')" class="cylinder-button" style="font-size:1rem;padding:8px 20px;margin-top:10px;background:#27ae60;">✔️ نشر الإجابة للطلاب</button>
+                        </div>`;
+                });
+            });
+        }
+
+        function loadArchive() {
+            const archiveList = document.getElementById('approvedQuestionsList');
+            archiveList.innerHTML = 'جاري تحميل الأرشيف...';
+            
+            fetch(`/api/questions/approved?grade=${selGrade}&subject=${selSub}`)
+            .then(res => res.json()).then(questions => {
+                if(questions.length === 0) { archiveList.innerHTML = '<p style="color:#94a3b8;">لم تقوم بالإجابة على أي أسئلة في هذا الصف بعد.</p>'; return; }
+                archiveList.innerHTML = '';
+                questions.forEach(q => {
+                    let img = q.imageUrl ? `<br><img src="${q.imageUrl}" style="max-width:190px;margin-top:10px;border-radius:6px;">` : '';
+                    archiveList.innerHTML += `
+                        <div class="qa-card">
+                            <div class="q-text">السؤال (مجهول): ${q.text} ${img}</div>
+                            <div class="a-text"><b>إجابتكِ المنشورة:</b> ${q.answer}</div>
+                        </div>`;
+                });
+            });
+        }
+
+        function sendAnswer(qId) {
+            const ans = document.getElementById(`ans-${qId}`).value.trim();
+            if(!ans) { alert("الرجاء كتابة الإجابة أولاً!"); return; }
+            fetch('/api/questions/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ questionId: qId, answer: ans, teacherName: tName })
+            }).then(res => res.json()).then(data => { 
+                alert(data.message); 
+                loadPending(); 
+                loadArchive(); 
+            });
+        }
+    </script>
+</body>
+</html>

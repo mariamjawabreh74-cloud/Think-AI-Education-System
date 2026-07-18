@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فهمك كفايتنا - بوابة تسجيل الدخول</title>
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="login.css"> 
+</head>
+<body onclick="resetAllPapers()">
+
+   
+   
+
+    <h1 class="login-main-title">تسجيل الدخول للمنصة التعليمية</h1>
+
+    <div class="login-container" id="mainContainer">
+
+        <div class="glass-paper" id="paperStudent" onclick="event.stopPropagation(); document.getElementById('paperStaff').classList.remove('active'); this.classList.toggle('active');">
+
+            <div class="outer-label"> تسجيل دخول الطالب</div>
+
+            <div class="form-content">
+                <h3 style="color: white; margin-top:0; margin-bottom:15px; font-size:22px;">بوابة الطلاب </h3>
+
+                <div class="input-wrapper">
+                    <input type="password" id="studentId" class="paper-input" placeholder="أدخل رقم الهوية المعتمد..." onclick="event.stopPropagation()">
+                    <span class="toggle-eye" onclick="togglePasswordVisibility('studentId', this, event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.815 7.815L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="remember-me-group" onclick="event.stopPropagation()">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberStudent"> حفظ تسجيل الدخول
+                    </label>
+                </div>
+
+                <div id="studentError" class="error-container"></div>
+                <button onclick="loginAction('student', event)" class="paper-submit-btn">تسجيل الدخول</button>
+            </div>
+        </div>
+
+        <div class="glass-paper" id="paperStaff" onclick="event.stopPropagation(); document.getElementById('paperStudent').classList.remove('active'); this.classList.toggle('active');">
+
+            <div class="outer-label"> تسجيل دخول الكادر والمدراء</div>
+
+            <div class="form-content">
+                <div class="inner-role-selector" onclick="event.stopPropagation()">
+                    <button class="inner-btn active" id="btnRoleTeacher" onclick="setStaffRole('teacher', event)"> معلم/ة</button>
+                    <button class="inner-btn" id="btnRoleAdmin" onclick="setStaffRole('admin', event)"> مدير/ة</button>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="password" id="staffId" class="paper-input" placeholder="أدخل رقم الهوية المعتمد..." onclick="event.stopPropagation()">
+                    <span class="toggle-eye" onclick="togglePasswordVisibility('staffId', this, event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.815 7.815L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="remember-me-group" onclick="event.stopPropagation()">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberStaff"> حفظ تسجيل الدخول
+                    </label>
+                </div>
+
+                <div id="staffError" class="error-container"></div>
+                <button onclick="loginAction('staff', event)" class="paper-submit-btn">تسجيل الدخول</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top:18px;">
+        <a href="superadmin.html" style="font-size:12px; color:#8a8a8a; text-decoration:none;">المطورين</a>
+    </div>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ar',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: true
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        let currentStaffRole = 'teacher';
+
+        function togglePasswordVisibility(inputId, eyeElement, event) {
+            if (event) event.stopPropagation(); 
+
+            const input = document.getElementById(inputId);
+
+            const openEye = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`;
+
+            const slashedEye = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="eye-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.815 7.815L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
+
+            if (input.type === "password") {
+                input.type = "text";
+                eyeElement.innerHTML = openEye;
+            } else {
+                input.type = "password";
+                eyeElement.innerHTML = slashedEye;
+            }
+        }
+
+        function activatePaper(target, event) {
+            if (event) event.stopPropagation();
+            const container = document.getElementById('mainContainer');
+
+            document.querySelectorAll('.glass-paper').forEach(el => el.classList.remove('active'));
+            container.classList.add('has-active');
+
+            if (target === 'student') {
+                document.getElementById('paperStudent').classList.add('active');
+            } else {
+                document.getElementById('paperStaff').classList.add('active');
+            }
+        }
+
+        function resetAllPapers() {
+            const container = document.getElementById('mainContainer');
+            container.classList.remove('has-active');
+            document.querySelectorAll('.glass-paper').forEach(el => el.classList.remove('active'));
+        }
+
+        function setStaffRole(role, event) {
+            if (event) event.stopPropagation();
+            currentStaffRole = role;
+            document.getElementById('btnRoleTeacher').classList.remove('active');
+            document.getElementById('btnRoleAdmin').classList.remove('active');
+            if (role === 'teacher') {
+                document.getElementById('btnRoleTeacher').classList.add('active');
+            } else {
+                document.getElementById('btnRoleAdmin').classList.add('active');
+            }
+        }
+
+        function loginAction(paperType, event) {
+            if (event) event.stopPropagation();
+            let id = '';
+            let role = '';
+            let errorDiv = null;
+
+            if (paperType === 'student') {
+                id = document.getElementById('studentId').value.trim();
+                role = 'student';
+                errorDiv = document.getElementById('studentError');
+            } else {
+                id = document.getElementById('staffId').value.trim();
+                role = currentStaffRole;
+                errorDiv = document.getElementById('staffError');
+            }
+
+            if (!id) {
+                errorDiv.innerText = "يرجى كتابة رقم الهوية!";
+                errorDiv.style.display = "block";
+                return;
+            }
+            errorDiv.style.display = "none";
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nationalId: id, role: role })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('currentUserName', data.name);
+                    localStorage.setItem('currentUserRole', role);
+                    if (data.grade) localStorage.setItem('currentUserGrade', data.grade);
+                    if (data.classes) localStorage.setItem('currentUserClasses', data.classes);
+                    if (data.schoolId) localStorage.setItem('currentUserSchoolId', data.schoolId);
+                    window.location.href = data.redirect;
+                } else {
+                    errorDiv.innerText = data.message;
+                    errorDiv.style.display = "block";
+                }
+            })
+            .catch(() => {
+                errorDiv.innerText = "خطأ في الاتصال بالسيرفر المحلي!";
+                errorDiv.style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>

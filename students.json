@@ -1,0 +1,14 @@
+{
+    "987654321": {
+        "name": "علي-محمد",
+        "grade": "عاشر",
+        "role": "student",
+        "schoolId": "sch_1784035307172_rmpyb"
+    },
+    "1234567890": {
+        "name": "محمد-علي",
+        "grade": "خامس",
+        "role": "student",
+        "schoolId": "sch_1784035307172_rmpyb"
+    }
+}

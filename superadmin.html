@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تسجيل المدارس - مطورين فقط</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background:#0f1115; color:#f1f1f1; margin:0; padding:30px; }
+        .box { max-width:600px; margin:0 auto; background:#1e2130; border-radius:14px; padding:25px; }
+        h1 { font-size:1.4rem; margin-top:0; }
+        input, select { width:100%; padding:10px; margin:6px 0 14px; border-radius:8px; border:1px solid #444; background:#12141c; color:#f1f1f1; box-sizing:border-box; }
+        button { padding:10px 18px; border:none; border-radius:8px; background:#4f8cff; color:white; cursor:pointer; font-size:14px; }
+        button:hover { background:#3b73e0; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        th, td { padding:8px; border-bottom:1px solid #333; text-align:right; font-size:13px; }
+        #loginGate { text-align:center; }
+        #panel { display:none; }
+        .msg { font-size:13px; margin-top:8px; }
+        .ok { color:#4ade80; } .err { color:#f87171; }
+    </style>
+</head>
+<body>
+
+<div class="box" id="loginGate">
+    <h1>🔒 دخول المطورين</h1>
+    <p style="font-size:13px; color:#aaa;">أدخل كلمة السر الخاصة بالمطورين للمتابعة.</p>
+    <input type="password" id="secretInput" placeholder="كلمة السر">
+    <button onclick="checkSecret()">دخول</button>
+    <div id="loginMsg" class="msg"></div>
+</div>
+
+<div class="box" id="panel">
+    <h1> تسجيل مدرسة جديدة</h1>
+    <input type="text" id="schoolName" placeholder="اسم المدرسة">
+    <input type="text" id="adminName" placeholder="اسم المديرة">
+    <input type="text" id="nationalId" placeholder="رقم هوية المديرة">
+    <button onclick="registerSchool()">➕ تسجيل المدرسة</button>
+    <input type="file">
+<button>رفع الملف</button>
+    <div id="registerMsg" class="msg"></div>
+
+    <h1 style="margin-top:30px;"> المدارس المسجلة</h1>
+    <table>
+        <thead><tr><th>المدرسة</th><th>المديرة</th><th>رقم الهوية</th>     <th>حذف</th></tr>
+</thead>
+        <tbody id="schoolsTable"><tr><td colspan="3">جاري التحميل...</td></tr></tbody>
+    </table>
+</div>
+
+<script>
+    let devSecret = sessionStorage.getItem('devSecret') || '';
+
+    if (devSecret) {
+        checkSecret(true);
+    }
+
+    function checkSecret(silent) {
+        const val = silent ? devSecret : document.getElementById('secretInput').value;
+        fetch('/api/superadmin/schools', {
+            headers: { 'x-super-admin-secret': val }
+        })
+        .then(res => {
+            if (res.status === 401 || res.status === 403) throw new Error('كلمة سر خاطئة');
+            return res.json();
+        })
+        .then(data => {
+            devSecret = val;
+            sessionStorage.setItem('devSecret', val);
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('panel').style.display = 'block';
+            renderSchools(data.schools || []);
+        })
+        .catch(err => {
+            sessionStorage.removeItem('devSecret');
+            if (!silent) {
+                document.getElementById('loginMsg').innerHTML = `<span class="err">❌ ${err.message}</span>`;
+            }
+        });
+    }
+
+    function renderSchools(schools) {
+        const tbody = document.getElementById('schoolsTable');
+        if (schools.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">لا توجد مدارس مسجلة بعد.</td></tr>';
+            return;
+        }
+       tbody.innerHTML = schools.map(s => `
+    <tr>
+        <td>${s.schoolName}</td>
+        <td>${s.adminName}</td>
+        <td>${s.adminId}</td>
+         <td>
+        <button onclick="deleteSchool('${s.adminId}')">
+             حذف
+        </button>
+    </td>
+    </tr>
+`).join('');
+    }
+
+    function registerSchool() {
+        const schoolName = document.getElementById('schoolName').value.trim();
+        const adminName = document.getElementById('adminName').value.trim();
+        const nationalId = document.getElementById('nationalId').value.trim();
+        const msg = document.getElementById('registerMsg');
+
+        if (!schoolName || !adminName || !nationalId) {
+            msg.innerHTML = '<span class="err"> الرجاء تعبئة كل الحقول.</span>';
+            return;
+        }
+
+        fetch('/api/superadmin/register-school', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-super-admin-secret': devSecret },
+            body: JSON.stringify({
+    schoolName,
+    adminName,
+    adminId: nationalId
+})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                msg.innerHTML = '<span class="ok">✅ تم تسجيل المدرسة بنجاح.</span>';
+                document.getElementById('schoolName').value = '';
+                document.getElementById('adminName').value = '';
+                document.getElementById('nationalId').value = '';
+                checkSecret(true);
+            } else {
+                msg.innerHTML = `<span class="err">❌ ${data.message || 'حدث خطأ.'}</span>`;
+            }
+        })
+        .catch(() => { msg.innerHTML = '<span class="err"> تعذر الاتصال بالخادم.</span>'; });
+    }
+    function deleteSchool(adminId) {
+
+    if (!confirm("هل أنت متأكد من حذف المدرسة؟"))
+        return;
+
+    fetch("/api/superadmin/delete-school", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "x-super-admin-secret": devSecret
+        },
+        body: JSON.stringify({
+            adminId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message);
+
+        if (data.success) {
+            checkSecret(true);
+        }
+
+    });
+
+}
+function uploadSchoolsExcel(){
+
+    const file=document.getElementById("schoolsExcel").files[0];
+
+    if(!file){
+
+        alert("اختاري ملف Excel");
+
+        return;
+
+    }
+
+    const formData=new FormData();
+
+    formData.append("excelFile",file);
+
+    fetch("/api/superadmin/upload-schools",{
+
+        method:"POST",
+
+        headers:{
+            "x-super-admin-secret":devSecret
+        },
+
+        body:formData
+
+    })
+
+    .then(r=>r.json())
+
+    .then(data=>{
+
+        alert(data.message);
+
+        if(data.success){
+
+            checkSecret(true);
+
+            document.getElementById("schoolsExcel").value="";
+
+        }
+
+    });
+
+}
+</script>
+</body>
+</html>

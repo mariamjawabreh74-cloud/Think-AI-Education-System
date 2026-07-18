@@ -1,0 +1,229 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('bg-login.png'); 
+    background-size: 100% 100%;     
+    background-position: center;   
+    background-repeat: no-repeat;  
+    background-attachment: fixed;  
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    direction: rtl;
+    overflow: hidden;
+}
+
+.login-main-title {
+    color: #1a4f63;
+    font-size: 3.5vmin;
+    font-weight: 800;
+    margin-bottom: 4vh; 
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+    text-align: center;
+    pointer-events: none;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px; 
+    width: 90vw;
+    max-width: 1100px;
+    height: auto;
+    z-index: 20;
+}
+
+.glass-paper {
+    background: rgba(26, 79, 99, 0.6); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    width: 320px;
+    height: 480px;
+    border-radius: 20px; 
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 35px 25px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; 
+    position: relative;
+    
+    pointer-events: auto !important;
+    cursor: pointer !important;
+
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                box-shadow 0.4s ease, 
+                background 0.4s ease,
+                border-color 0.4s ease,
+                opacity 0.4s ease;
+}
+
+.glass-paper:hover {
+    transform: scale(1.05) translateY(-5px); 
+    background: rgba(26, 79, 99, 0.7); 
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.5); 
+}
+
+.glass-paper.active {
+    transform: scale(1.08) !important; 
+    background: rgba(14, 43, 54, 0.92) !important; 
+    border-color: #3a9cbd !important; 
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6) !important; 
+    cursor: default !important;
+    opacity: 1 !important;
+}
+
+.login-container.has-active .glass-paper:not(.active) {
+    opacity: 0.35;
+    transform: scale(0.92);
+}
+
+.outer-label {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    position: absolute;
+    top: 45%; 
+    transform: translateY(-50%);
+    width: 85%;
+    transition: top 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), font-size 0.4s ease;
+    
+    pointer-events: none !important; 
+}
+
+.glass-paper:hover .outer-label,
+.glass-paper.active .outer-label {
+    top: 35px; 
+    font-size: 19px;
+}
+
+.form-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 75px; 
+    
+    opacity: 0.01; 
+    transform: scale(0.95);
+    transition: all 0.4s ease;
+    
+    pointer-events: none !important; 
+}
+
+.glass-paper:hover .form-content {
+    opacity: 0.55; 
+    visibility: visible;
+    transform: scale(1);
+    filter: blur(3.5px); 
+    pointer-events: none !important; 
+}
+
+.glass-paper.active .form-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1) !important;
+    filter: blur(0px) !important; 
+    
+    pointer-events: auto !important; 
+}
+
+.input-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    margin-bottom: 15px !important;
+}
+
+.toggle-eye {
+    position: absolute !important;
+    left: 15px !important; 
+    top: 50% !important;
+    transform: translateY(-50%) !important; 
+    cursor: pointer !important;
+    z-index: 100 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.eye-icon, .toggle-eye svg {
+    width: 22px !important;  
+    height: 22px !important; 
+    max-width: 22px !important;
+    max-height: 22px !important;
+    stroke: rgba(255, 255, 255, 0.85) !important; 
+    fill: none !important;
+    display: block !important;
+}
+
+.toggle-eye:hover .eye-icon {
+    stroke: #3498db !important; 
+}
+
+.paper-input {
+    width: 100% !important;
+    height: 46px !important;
+    font-size: 15px !important;
+    border: 2px solid rgba(188, 225, 232, 0.5) !important; 
+    border-radius: 12px !important;
+    text-align: center !important;
+    outline: none !important;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    padding-left: 45px !important; 
+    box-sizing: border-box !important;
+}
+
+.paper-input::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+.remember-me-group { display: flex; align-items: center; justify-content: flex-start; width: 100%; margin-bottom: 20px; padding-right: 5px; }
+.remember-label { color: rgba(255, 255, 255, 0.85); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.remember-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #3a9cbd; }
+
+.inner-role-selector { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; justify-content: center; }
+.inner-btn { background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.25); color: white; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.inner-btn.active, .inner-btn:hover { background: #3a9cbd; border-color: #2a7f9d; }
+
+.paper-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2a7f9d 0%, #3a9cbd 100%);
+    color: white;
+    width: 85%;
+    height: 44px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(243, 156, 18, 0.25);
+}
+.paper-submit-btn:hover { box-shadow: 0 10px 20px rgba(243, 156, 18, 0.4); }
+.error-container { color: #ff6b6b; font-weight: bold; font-size: 13px; margin-bottom: 10px; text-align: center; display: none; }
+.glass-paper.active {
+    transform: scale(1.08) !important; 
+    background: rgba(14, 43, 54, 0.95) !important; 
+    border-color: #3a9cbd !important; 
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6) !important; 
+}
+
+.glass-paper.active .form-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: blur(0px) !important; 
+    pointer-events: auto !important; 
+}

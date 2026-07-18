@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير/ة</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="back-btn-container">
+    <button onclick="window.history.back();" class="back-btn">🔙 تراجع</button>
+</div>
+
+<div id="google_translate_element" style="display:none;"></div>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'ar', 
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: true
+        }, 'google_translate_element');
+    }
+</script>
+<script type="text/javascript" src="//://google.com"></script>
+
+    <div class="admin-layout">
+        <div class="main-box" style="max-width: 100%; box-sizing: border-box;">
+            <h1 style="color: #ffffff; margin-bottom: 5px;">لوحة تحكم المدير/ة</h1>
+            <p class="admin-subtitle">مرحباً بك حضرة المدير/ة. يمكنك رفع ملفات المدرسة ومراقبة كافة الأسئلة والاستفسارات الجارية.</p>
+            
+            <div class="grid-container">
+                <div class="upload-box">
+                    <h3> تعبئة بيانات الطلاب (Excel)</h3>
+                    <p style="font-size: 0.8rem; color: #665b5b; margin-top:0;">* الأعمدة: [رقم_الهوية]، [الاسم]، [الصف]</p>
+                    <p style="font-size: 0.75rem; color: #8a7f7f; margin-top:0;">كل ملف جديد يُضاف إلى القائمة الحالية ولا يحذفها.</p>
+                    <input type="file" id="studentExcel" accept=".xlsx, .xls"><br>
+                    <button onclick="uploadExcel('student')" class="action-btn">رفع وإضافة الطلاب</button>
+                    <button onclick="openArchive('students')" class="action-btn" style="background:#5c6bc0; margin-top:8px;">🗂️ الأرشيف</button>
+                </div>
+                
+                <div class="upload-box">
+                    <h3> تعبئة بيانات المعلمين(Excel)</h3>
+                    <p style="font-size: 0.8rem; color: #665b5b; margin-top:0;">* الأعمدة: [رقم_الهوية]، [الاسم]، [المواد_والصفوف]</p>
+                    <p style="font-size: 0.75rem; color: #8a7f7f; margin-top:0;">كل ملف جديد يُضاف إلى القائمة الحالية ولا يحذفها.</p>
+                    <input type="file" id="teacherExcel" accept=".xlsx, .xls"><br>
+                    <button onclick="uploadExcel('teacher')" class="action-btn">رفع وإضافة المعلمين</button>
+                    <button onclick="openArchive('teachers')" class="action-btn" style="background:#5c6bc0; margin-top:8px;">🗂️ الأرشيف</button>
+                </div>
+            </div>
+
+            <div id="archiveModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:999; align-items:center; justify-content:center;">
+                <div style="background:#1e2130; color:#f1f1f1; width:90%; max-width:520px; max-height:80vh; overflow-y:auto; border-radius:14px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 id="archiveTitle" style="margin:0;"> أرشيف الملفات</h3>
+                        <button onclick="closeArchive()" style="background:none; border:none; color:#f1f1f1; font-size:20px; cursor:pointer;">✖</button>
+                    </div>
+                    <div id="archiveList">جاري التحميل...</div>
+                </div>
+            </div>
+
+            <div class="monitor-section">
+                <h2>🔍 شاشة الرقابة والمتابعة الشاملة للغرف الصفية</h2>
+                
+                <div class="filter-group">
+                    <label><b>الصف الدراسي:</b></label>
+                   
+                  <select id="filterGrade" class="select-input">
+    <option value="all">كل الصفوف</option>
+</select>
+
+<label style="margin-right:15px;"><b>المادة المدرسية:</b></label>
+
+<select id="filterSubject" class="select-input">
+    <option value="all">كل المواد</option>
+</select>
+                    
+                    <button onclick="filterLogs()" class="monitor-fetch-btn"> استدعاء ومتابعة السجلات</button>
+                </div>
+
+                <div id="allLogsList">
+                    <p style="color: #bce1e8; font-weight: bold; font-size: 15px; text-align: center; padding: 20px;"> يرجى تحديد خيارات التصفية المطلوبة بالأعلى، ثم الضغط على زر الاستدعاء لعرض السجلات.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const adminName = localStorage.getItem('currentUserName');
+        const adminRole = localStorage.getItem('currentUserRole');
+        const schoolId = localStorage.getItem('currentUserSchoolId');
+        if (!adminName || adminRole !== 'admin' || !schoolId) {
+            alert('يرجى تسجيل الدخول كمدير/ة أولاً.');
+            window.location.href = 'login.html';
+        }
+
+        let allQuestionsCache = []; 
+        let isLogsVisible = false; 
+
+        function uploadExcel(type) {
+            const input = type === 'student' ? document.getElementById('studentExcel') : document.getElementById('teacherExcel');
+            if (input.files.length === 0) { alert('الرجاء اختيار ملف إكسل أولاً!'); return; }
+            const formData = new FormData();
+            formData.append('excelFile', input.files[0]);
+            formData.append('schoolId', schoolId);
+            const endpoint = type === 'student' ? '/upload-students' : '/upload-teachers';
+
+            fetch(endpoint, { method: 'POST', body: formData })
+            .then(res => res.text())
+            .then(data => { alert(data); input.value = ''; fetchQuestionsBackground(); })
+            .catch(err => alert('حدث خطأ أثناء الرفع: ' + err));
+        }
+
+        let currentArchiveType = null;
+        function openArchive(type) {
+            currentArchiveType = type;
+            document.getElementById('archiveTitle').innerText = type === 'students' ? '🗂️ أرشيف ملفات الطلاب' : '🗂️ أرشيف ملفات المعلمين';
+            document.getElementById('archiveModal').style.display = 'flex';
+            loadArchiveList();
+        }
+
+        function closeArchive() {
+            document.getElementById('archiveModal').style.display = 'none';
+        }
+
+        function loadArchiveList() {
+            const listDiv = document.getElementById('archiveList');
+            listDiv.innerHTML = 'جاري التحميل...';
+            fetch(`/api/admin/archive?schoolId=${encodeURIComponent(schoolId)}&type=${currentArchiveType}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success || !data.items || data.items.length === 0) {
+                    listDiv.innerHTML = '<p style="text-align:center; color:#aaa;">لا توجد ملفات مؤرشفة بعد.</p>';
+                    return;
+                }
+                listDiv.innerHTML = data.items.map(item => {
+                    const date = new Date(item.uploadedAt).toLocaleString('ar-EG');
+                    return `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.12);">
+                            <div>
+                                <div style="font-weight:bold;">${item.originalName}</div>
+                                <div style="font-size:12px; color:#aaa;">${date} • ${item.rowCount} سجل</div>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <a href="/uploads/archive/${item.storedName}" download="${item.originalName}" style="color:#7dd3fc; text-decoration:none; font-size:13px;">⬇️ تنزيل</a>
+                                <button onclick="deleteArchiveItem('${item.id}')" style="background:#e74c3c; border:none; color:white; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:13px;">🗑️ حذف</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            })
+            .catch(() => { listDiv.innerHTML = '<p style="color:#e74c3c;">تعذر تحميل الأرشيف.</p>'; });
+        }
+
+        function deleteArchiveItem(id) {
+            if (!confirm('هل تريد حذف هذا الملف من الأرشيف؟ (هذا لا يحذف الطلاب/المعلمين المدخلين مسبقاً)')) return;
+            fetch(`/api/admin/archive/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ schoolId: schoolId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { loadArchiveList(); } else { alert(data.message || 'تعذر حذف الملف.'); }
+            })
+            .catch(() => alert('حدث خطأ أثناء الحذف.'));
+        }
+
+        function fetchQuestionsBackground() {
+            fetch(`/api/admin/all-questions?schoolId=${encodeURIComponent(schoolId)}`)
+            .then(res => res.json())
+            .then(questions => {
+                allQuestionsCache = questions; 
+            })
+            .catch(err => console.log('خطأ في جلب التحديثات في الخلفية'));
+        }
+
+        function displayQuestions(questionsList) {
+            const logsList = document.getElementById('allLogsList');
+            if (questionsList.length === 0) {
+                logsList.innerHTML = '<p style="color: #ff6b6b; font-weight: bold; text-align: center; padding: 15px;">⚠️ لا توجد أي سجلات أسئلة متوفرة حالياً تطابق خيارات التصفية المستدعاة.</p>';
+                return;
+            }
+
+            logsList.innerHTML = '';
+            questionsList.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'log-card';
+                
+                const badgeClass = q.status === 'pending' ? 'status-badge status-pending' : 'status-badge status-answered';
+                const badgeText = q.status === 'pending' ? '⏳ قيد انتظار إجابة المعلمة' : '✅ تم الإجابة عليها';
+                
+                let imgHtml = q.imageUrl ? `<br><img src="${q.imageUrl}" style="max-width:150px; margin-top:10px; border-radius:6px;">` : '';
+                let answerHtml = q.status === 'answered' ? `<div style="color: #27ae60; margin-top:5px;"><b>رد المعلمة (${q.teacherName}):</b> ${q.answer}</div>` : '';
+
+                card.innerHTML = `
+                    <div class="${badgeClass}">${badgeText}</div>
+                    <div style="font-size:0.9rem; color:#7f8c8d; margin-bottom:5px;">الغرفة الصفية: مادة <b>${q.subject}</b> - الصف <b>${q.grade}</b></div>
+                    <div style="font-weight:bold; color:#2c3e50;">السؤال الوارد (مجهول): ${q.text} ${imgHtml}</div>
+                    ${answerHtml}
+                `;
+                logsList.appendChild(card);
+            });
+        }
+
+        function filterLogs() {
+            const logsList = document.getElementById('allLogsList');
+            const fetchBtn = document.querySelector('.monitor-fetch-btn');
+            
+            if (isLogsVisible) {
+                logsList.innerHTML = '<p style="color: #bce1e8; font-weight: bold; font-size: 15px; text-align: center; padding: 20px;"> يرجى تحديد خيارات التصفية المطلوبة بالأعلى، ثم الضغط على زر الاستدعاء لعرض السجلات.</p>';
+                fetchBtn.innerHTML = ' استدعاء ومتابعة السجلات';
+                isLogsVisible = false; 
+                return; 
+            }
+
+            logsList.innerHTML = '<p style="color: #3a9cbd; font-weight: bold; text-align: center; padding: 15px;">⏳ جاري فحص واستدعاء السجلات المعتمدة من الخادم السري...</p>';
+
+            const gradeFilter = document.getElementById('filterGrade').value;
+            const subjectFilter = document.getElementById('filterSubject').value;
+            const clean = (t) => t ? String(t).trim().toLowerCase().replace(/^ال/, '') : '';
+
+            const filtered = allQuestionsCache.filter(q => {
+                const matchGrade = gradeFilter === 'all' || clean(q.grade) === clean(gradeFilter);
+                const matchSubject = subjectFilter === 'all' || clean(q.subject) === clean(subjectFilter);
+                return matchGrade && matchSubject;
+            });
+
+            setTimeout(() => {
+                displayQuestions(filtered);
+                fetchBtn.innerHTML = ' إخفاء وتصفير السجلات '; 
+                isLogsVisible = true; 
+            }, 250);
+        }
+
+    window.onload = function () {
+    fetchQuestionsBackground();
+    loadFilters();
+};
+     function loadFilters() {
+
+    fetch(`/api/admin/filter-options?schoolId=${encodeURIComponent(schoolId)}`)
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        const gradeSelect = document.getElementById("filterGrade");
+        const subjectSelect = document.getElementById("filterSubject");
+
+        gradeSelect.innerHTML =
+            '<option value="all">كل الصفوف</option>';
+
+        subjectSelect.innerHTML =
+            '<option value="all">كل المواد</option>';
+
+        data.grades.forEach(g => {
+
+            gradeSelect.innerHTML +=
+                `<option value="${g}">${g}</option>`;
+
+        });
+
+        data.subjects.forEach(s => {
+
+            subjectSelect.innerHTML +=
+                `<option value="${s}">${s}</option>`;
+
+        });
+
+    });
+
+}
+    </script>
+</body>
+</html>

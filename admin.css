@@ -1,0 +1,204 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('bg-login.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    direction: rtl;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    padding: 30px 0;
+    box-sizing: border-box;
+}
+
+.admin-layout {
+    width: 90vw;
+    max-width: 1150px;
+    background: rgba(26, 79, 99, 0.55); 
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    box-sizing: border-box;
+    animation: slideUpAdmin 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes slideUpAdmin {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.admin-subtitle {
+    color: #bce1e8;
+    font-size: 15px;
+    margin-top: 0;
+    margin-bottom: 35px;
+    font-weight: 600;
+}
+
+.grid-container {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 35px;
+    width: 100%;
+}
+
+.upload-box {
+    width: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px dashed rgba(188, 225, 232, 0.4);
+    padding: 25px;
+    border-radius: 16px;
+    text-align: right;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: #3a9cbd;
+    transform: translateY(-3px);
+}
+
+.upload-box h3 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 19px;
+}
+
+input[type="file"] {
+    color: #ffffff;
+    font-size: 14px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 50px; 
+    cursor: pointer;
+    margin-top: 18px;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(39, 174, 96, 0.5);
+    filter: brightness(1.05);
+}
+
+.monitor-section {
+    background: rgba(14, 43, 54, 0.5);
+    border-radius: 18px;
+    padding: 30px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.monitor-section h2 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 22px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 12px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    align-items: center;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.select-input {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 2px solid rgba(188, 225, 232, 0.3);
+    background: #1a4f63;
+    color: white;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.select-input:focus {
+    border-color: #3a9cbd;
+}
+
+.log-card {
+    background: rgba(255, 255, 255, 0.96);
+    border-right: 6px solid #3498db;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    animation: fadeInLog 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes fadeInLog {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.status-answered { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.monitor-fetch-btn {
+    background: linear-gradient(135deg, #2a7f9d 0%, #3a9cbd 100%);
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 50px; 
+    cursor: pointer;
+    margin-right: auto;
+    box-shadow: 0 4px 15px rgba(42, 127, 157, 0.25), 0 4px 10px rgba(243, 156, 18, 0.15);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.monitor-fetch-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(42, 127, 157, 0.4), 0 6px 15px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, #226881 0%, #2a7f9d 100%);
+}
+
+.monitor-fetch-btn:active {
+    transform: translateY(1px);
+}

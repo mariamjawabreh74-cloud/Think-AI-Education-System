@@ -1,0 +1,204 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('bg-login.png'); 
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+#welcomeTitle {
+    color: #ffffff; 
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+#studentInfo {
+    color: #ffffff; 
+    font-size: 20px;  
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.student-layout {
+    display: flex;
+    gap: 30px;
+    width: 90vw;
+    max-width: 1150px;
+    align-items: flex-start;
+}
+
+.sidebar {
+    width: 30%;
+    background: rgba(26, 79, 99, 0.55); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 25px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+.sidebar h3 {
+    color: #ffffff; 
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 10px;
+}
+
+.main-content {
+    width: 70%;
+    background: rgba(26, 79, 99, 0.5); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    animation: fadeInContent 0.5s ease-out forwards;
+}
+
+@keyframes fadeInContent {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.main-content h2 {
+    color: #ffffff !important; 
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.main-content h3 {
+    color: #ffffff; 
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 19px;
+}
+
+.subject-btn {
+    width: 100%;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    background: #ffffff; 
+    border: none;
+    border-radius: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: right;
+    font-size: 17px;
+    color: #1a4f63; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.subject-btn.active {
+    background: #3498db !important; 
+    color: #ffffff !important;    
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.35);
+}
+
+
+.subject-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    transform: translateX(-4px); 
+    border-color: rgba(255, 255, 255, 0.45);
+}
+.txt-area {
+    width: 100%;
+    height: 95px;
+    padding: 12px 15px;
+    border: 2px solid rgba(188, 225, 232, 0.4);
+    border-radius: 12px;
+    resize: none;
+    margin-bottom: 15px;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 15px;
+    color: #ffffff; 
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.txt-area::placeholder {
+    color: rgba(255, 255, 255, 0.55); 
+}
+
+.txt-area:focus {
+    border-color: #3a9cbd;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+input[type="file"] {
+    color: #bce1e8;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.cylinder-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2a7f9d 0%, #3a9cbd 100%);
+    color: white;
+    padding: 10px 30px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 50px; 
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(243, 156, 18, 0.28);
+    transition: all 0.3s ease;
+}
+
+.cylinder-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(243, 156, 18, 0.45);
+}
+
+.qa-card {
+    background: rgba(255, 255, 255, 0.96); 
+    border-right: 6px solid #27ae60; 
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
+
+.q-text {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.a-text {
+    color: #1e7e34;
+    background: #f0fdf4;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 8px;
+    line-height: 1.5;
+    font-weight: 600;
+}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>بوابة الطالب</title>
+    <link rel="stylesheet" href="student.css">
+    <style>
+        .student-layout { display: flex; gap: 25px; max-width: 1100px; width: 95%; margin: 20px auto; text-align: right; }
+        .sidebar { width: 30%; background: lab(62.09% 0.31 -26.16); padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .main-content { width: 70%; background: #7288b6; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); display: none; }
+        .subject-btn { width: 100%; padding: 12px; margin-bottom: 10px; background: #f1f5f9; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-align: right; }
+        .subject-btn.active, .subject-btn:hover { background: #3498db; color: rgb(255, 255, 255); }
+        .txt-area { width: 100%; height: 90px; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; resize: none; margin-bottom: 15px; outline: none; box-sizing: border-box; }
+        .qa-card { background: #f8fafc; border-right: 5px solid #27ae60; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .q-text { font-weight: bold; color: #2c3e50; }
+        .a-text { color: #27ae60; background: #ebf7ee; padding: 8px; border-radius: 6px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+
+<div id="google_translate_element" style="display:none;"></div>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'ar', 
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: true
+        }, 'google_translate_element');
+    }
+</script>
+<script type="text/javascript" src="//://google.com"></script>
+
+    <div style="text-align: center; width: 100%; margin-top: 20px;">
+        <h2 id="welcomeTitle" style="color: #393a5e;">أهلاً بك</h2>
+        <p id="studentInfo" style="color: #393a5e; font-weight: bold;"></p>
+    </div>
+    <div class="student-layout">
+        <div class="sidebar">
+            <h3 style="color: #1a4f63; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;"> مواد صفك الدراسي</h3>
+            <div id="subjectsList"></div>
+        </div>
+        <div class="main-content" id="mainContent">
+            <h2 id="currentSubjectTitle" style="color: #2980b9;"></h2>
+            <div style="border-bottom:2px solid #164676; padding-bottom:20px; margin-bottom:20px;">
+                <h3> اسأل معلمك سؤالك بسرية تامة </h3>
+                <textarea id="questionText" class="txt-area" placeholder="اكتب سؤالك بدون خجل , احنا هون موجودين عشان نساعدك"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <input type="file" id="questionImage" style="margin-top: 5px;">
+                    <button onclick="sendQuestion()" class="cylinder-button" style="padding: 10px 30px;">✉️ إرسال مجهول</button>
+                </div>
+            </div>
+            <div>
+                <h3>الأسئلة المُجاب عنها</h3>
+                <div id="referenceList"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const name = localStorage.getItem('currentUserName');
+        const grade = localStorage.getItem('currentUserGrade');
+        const schoolId = localStorage.getItem('currentUserSchoolId');
+        let selectedSubject = '';
+
+        if(!name || !grade) { alert("يرجى تسجيل الدخول أولاً."); window.location.href = "login.html"; }
+        document.getElementById('welcomeTitle').innerText = `أهلاً بك يا ${name}`;
+        document.getElementById('studentInfo').innerText = `الصف: ${grade}`;
+
+        const listDiv = document.getElementById('subjectsList');
+
+        function loadSubjects() {
+            listDiv.innerHTML = '<p style="color:#7f8c8d;">جاري تحميل المواد...</p>';
+
+
+fetch(`/api/subjects-by-grade?grade=${encodeURIComponent(grade)}&schoolId=${encodeURIComponent(schoolId)}`)
+            .then(res => res.json())
+            .then(subjects => {
+                listDiv.innerHTML = '';
+                if (!subjects || subjects.length === 0) {
+                    listDiv.innerHTML = '<p style="color:#ff6b6b; font-weight:bold;"> لا توجد مواد مسجلة لصفك حالياً، تأكد من قيام الإدارة برفع بيانات المعلمات.</p>';
+                    return;
+                }
+                subjects.forEach(sub => {
+                    const btn = document.createElement('button');
+                    btn.className = 'subject-btn';
+                    btn.innerText = ` مادة ${sub}`;
+                    btn.onclick = () => {
+                        selectedSubject = sub;
+                        document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById('currentSubjectTitle').innerText = `غرفة مادة ${sub}`;
+                        document.getElementById('mainContent').style.display = 'block';
+                        loadApproved();
+                    };
+                    listDiv.appendChild(btn);
+                });
+            })
+            .catch(() => {
+                listDiv.innerHTML = '<p style="color:red;">حدث خطأ أثناء تحميل المواد.</p>';
+            });
+        }
+        loadSubjects();
+
+        
+    function sendQuestion() {
+    const text = document.getElementById('questionText').value.trim();
+    const imgInput = document.getElementById('questionImage');
+
+    if(!text) {
+        alert("الرجاء كتابة السؤال!");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('text', text);
+    formData.append('subject', selectedSubject);
+    formData.append('grade', grade);
+    formData.append('schoolId', schoolId);
+
+    if(imgInput.files[0]) {
+        formData.append('questionImage', imgInput.files[0]);
+    }
+
+    fetch('/api/questions/send', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+
+        if(data.success){
+            document.getElementById('questionText').value = '';
+            imgInput.value = '';
+        }
+    });
+}
+
+    fetch('/api/questions/send', { 
+    method: 'POST', 
+    body: formData 
+})
+.then(res => res.json())
+.then(data => { 
+    console.log(data);
+    alert(data.message); 
+})
+.catch(err => {
+    console.log(err);
+    alert("صار خطأ");
+});
+
+        function loadApproved() {
+            const refList = document.getElementById('referenceList');
+            refList.innerHTML = 'جاري التحميل...';
+fetch(`/api/questions/approved?grade=${encodeURIComponent(grade)}&subject=${encodeURIComponent(selectedSubject)}&schoolId=${encodeURIComponent(schoolId)}`)
+            .then(res => res.json()).then(questions => {
+                if(questions.length === 0) { refList.innerHTML = 'لا توجد أسئلة مجاب عنها بعد.'; return; }
+                refList.innerHTML = '';
+                questions.forEach(q => {
+                    let img = q.imageUrl ? `<br><img src="${q.imageUrl}" style="max-width:200px;margin-top:10px;">` : '';
+                    refList.innerHTML += `<div class="qa-card"><div class="q-text">السؤال: ${q.text} ${img}</div><div class="a-text">الإجابة: ${q.answer}</div></div>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
